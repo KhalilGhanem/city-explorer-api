@@ -6,7 +6,7 @@ require('dotenv').config();
 
 server.use(cors());
 
-const PORT= 3001 || process.env.PORT;
+const PORT=process.env.PORT;
 
 class Forecast {
     constructor(date,description){
