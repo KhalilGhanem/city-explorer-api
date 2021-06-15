@@ -6,7 +6,7 @@ require('dotenv').config();
 
 server.use(cors());
 
-const PORT= 3001;
+const PORT= 3001 || process.env.PORT;
 
 class Forecast {
     constructor(date,description){
@@ -15,6 +15,13 @@ class Forecast {
     }
   }
   
+
+
+// http://localhost:3001/
+server.checkout('/',(req,res)=>{
+    res.send('welcome in the home route');
+})
+
 
 // http://localhost:3001/getweather
 
@@ -78,6 +85,6 @@ server.get('/TEST',(req,res)=>{
     res.send('hello from test route');
 });
 
-server.listen(PORT, () =>{
+server.listen(PORT , () =>{
     console.log(`Listening for PORT:${PORT}`)
 });
