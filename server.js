@@ -10,8 +10,9 @@ const PORT=process.env.PORT;
 
 class Forecast {
     constructor(date,description){
-      this.date = date;
       this.description = description;
+      this.date = date;
+
     }
   }
   
@@ -64,12 +65,12 @@ server.get('/weather', (req,res) =>{
             item.data.forEach((obj)=>{
                 let description=`Low of ${obj.low_temp}, high of ${obj.max_temp} with ${obj.weather.description}`;
                 let date=obj.valid_date;
-                let day=new Forecast(description,date);
+                let day=new Forecast(date,description);
                 arrOfDays.push(day);
             });
             res.send(arrOfDays);
         }else {
-           return res.send('error');
+           return res.status(500).send("Error city not found");
         }
     })
     return wetharinfo;
