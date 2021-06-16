@@ -1,3 +1,4 @@
+'use strict';
 const express= require ('express');
 const server =express();
 const weatherdate=require('./data/weather.json');
@@ -10,81 +11,84 @@ const PORT=process.env.PORT;
 
 class Forecast {
     constructor(date,description){
-      this.date = date;
       this.description = description;
+      this.date = date;
+
     }
-  }
+}
   
 
-
-// http://localhost:3001/
-server.checkout('/',(req,res)=>{
-    res.send('welcome in the home route');
-})
-
-
 // http://localhost:3001/getweather
-
 server.get('/getweather',(req,res)=>{
-    
-     res.send(weatherdate[0].city_name);
-       
-})
+     res.send(weatherdate.data); 
+});
 
-// let citypar=req.query.searchQuery;
-// let wetharinfo=weatherdate.find(item =>{
-//     if(citypar==item.city_name) {
-//         return item.city_name;
-//     }else {
-//         return 'error';
-//     }
-// res.send(wetharinfo);
-///////////////////////////////////
-// if (wetharinfo.city_name==searchQuerypar && wetharinfo.lat==latpar && wetharinfo.lon==lonpar){
-//     res.send(wetharinfo.data);
-// }else {
-//   res.send('error');
-// }
-// description": "Low of 17.1, high of 23.6 with broken clouds",
-// "date": "2021-03-31"
-// },
 
-// http://localhost:3001/weather?lat=123&lon=123&searchQuery=city_name
-// wetharinfo==searchQuerypar && weatherdate.lat==latpar && weatherdate.lon==lonpar
-
+//http://localhost:3001/weather?searchQuery=city_name
 server.get('/weather', (req,res) =>{
-    let latpar=req.query.lat;
-    let lonpar=req.query.lon;
     let searchQuerypar=req.query.searchQuery;
     let arrOfDays=[];
-    let  wetharinfo= weatherdate.find(item =>{
-        console.log(item);
-        if(item.city_name==searchQuerypar && item.lat==latpar && item.lon == lonpar){
-            console.log(item.data);
-            item.data.forEach((obj)=>{
-                let description=`Low of ${obj.low_temp}, high of ${obj.max_temp} with ${obj.weather.description}`;
-                let date=obj.valid_date;
-                let day=new Forecast(description,date);
-                arrOfDays.push(day);
-            });
-            res.send(arrOfDays);
-        }else {
-           return res.send('error');
-        }
-    })
-    return wetharinfo;
-   
-    } )
+    let cityInfo=weatherdate.find(item =>{
+        return searchQuerypar.toLowerCase()==item.city_name.toLowerCase();
+    });
+    if(cityInfo != undefined){
+        
+        cityInfo.data.forEach((obj)=>{
+            let description=`Low of ${obj.low_temp}, high of ${obj.max_temp} with ${obj.weather.description}`;
+            let date=obj.valid_date;
+            let day=new Forecast(date,description);
+            arrOfDays.push(day);
+        });
+        res.status(200).send(arrOfDays);
+    }else {
+        res.status(500).send("Error city not found");
+    }
 
+    });
 
+//http://localhost:3001/
+server.get('/',(req,res)=>{
+        res.send('hello from Home route');
+     });
 
-
-
-
+//http://localhost:3001/test     
 server.get('/TEST',(req,res)=>{
     res.send('hello from test route');
 });
 
+
+server.get('*',(req,res)=>{
+    res.status(404).send('404 page not found');
+});
+
+
+
 server.listen(PORT , () =>{
     console.log(`Listening for PORT:${PORT}`)
 });
+
+
+/// old attempt:
+
+// console.log(weatherdate);
+// let latpar=req.query.lat;
+// let lonpar=req.query.lon;
+// let searchQuerypar=req.query.searchQuery;
+// let arrOfDays=[];
+// let  wetharinfo= weatherdate.find(item =>{
+//     console.log(item);
+//     if(item.city_name.toLowerCase()==searchQuerypar.toLowerCase()){
+//         console.log(item.data);
+//         item.data.forEach((obj)=>{
+//             let description=`Low of ${obj.low_temp}, high of ${obj.max_temp} with ${obj.weather.description}`;
+//             let date=obj.valid_date;
+//             let day=new Forecast(date,description);
+//             arrOfDays.push(day);
+//         });
+//         res.send(arrOfDays);
+//     }else {
+//        return res.status(500).send("Error city not found");
+//     }
+// })
+
+// note: we cant send two responses in the same funtion it will cause an error
