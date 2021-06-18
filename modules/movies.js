@@ -15,12 +15,17 @@ class Movies {
       
     }
   }
-
+  let myMemory={};
 
 function moviesHandler(req,res){
   let arrOfMovies=[];
   let city_name=req.query.query;
-  let murl=`https://api.themoviedb.org/3/search/movie?api_key=${MKEY}&query=${city_name}`;
+
+    if(myMemory[city_name] !== undefined){
+        console.log("git data from memory");
+        res.send(myMemory[city_name]);
+    }else {
+        let murl=`https://api.themoviedb.org/3/search/movie?api_key=${MKEY}&query=${city_name}`;
 
       axios.get(murl).then(mresult =>{
         let mdata=mresult.data.results.forEach(item =>{
@@ -34,11 +39,15 @@ function moviesHandler(req,res){
           let movie=new Movies(title,overview,average_votes,total_votes,image_url,popularity,released_on);
           arrOfMovies.push(movie);
         });
+        console.log("git data from api");
+        myMemory[city_name]=arrOfMovies;
         res.status(200).send(arrOfMovies);
       })
       .catch(err =>{
         res.status(500).send(err.message);
       });   
+    }
+  
 };
 
 
